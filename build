@@ -1,5 +1,5 @@
 #!/bin/bash
-rm -rf data/redis
+rm -rf data
 mkdir -p data/redis
 chmod 777 -R data/redis
 mkdir files
