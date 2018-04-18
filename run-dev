@@ -1,6 +1,5 @@
 #!/bin/bash
-mkdir -p data/redis
-chmod 777 data/redis
+mkdir -p data/redis/data
 mv docker-compose.yaml docker-compose-original.yaml
 mv docker-compose-actual.yaml docker-compose.yaml
 docker-compose build && docker-compose up

@@ -12,11 +12,16 @@
   },
   "dependencies": {
     "buefy": "^0.6.5",
+    "grunt": "^0.4.0",
     "jquery": "^3.3.1",
     "node-sass": "^4.8.3",
+    "recordrtc": "^5.4.6",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.20.3",
-    "vue": "^2.5.2"
+    "video.js": "^6.7.3",
+    "videojs-record": "^2.1.3",
+    "vue": "^2.5.2",
+    "webrtc-adapter": "^6.1.5"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

@@ -1,10 +1,14 @@
 <template>
   <div>
-    <p>Main</p>
+    <Home v-if="loggedin"/>
+    <Login v-else/>
   </div>
 </template>
 
 <script>
+import Home from './Home';
+import Login from './Login';
+
 export default {
   name: 'Main',
   data() {
@@ -12,26 +16,16 @@ export default {
       loggedin: false,
     };
   },
+  components: {
+    Home,
+    Login,
+  },
   mounted() {
-    // Set loggedin = true
+    // See if user is logged in (from browser cookies) by asking the /isloggedin endpoint
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+<style lang="sass" scoped>
 </style>
