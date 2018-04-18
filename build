@@ -1,0 +1,11 @@
+#!/bin/bash
+rm -rf data/redis
+mkdir -p data/redis
+chmod 777 -R data/redis
+mkdir files
+mv docker-compose.yaml docker-compose-original.yaml
+mv docker-compose-actual.yaml docker-compose.yaml
+docker-compose build
+docker-compose up
+mv docker-compose.yaml docker-compose-actual.yaml
+mv docker-compose-original.yaml docker-compose.yaml

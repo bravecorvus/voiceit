@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/gilgameshskytrooper/bigdisk/crypto"
+	"github.com/gilgameshskytrooper/voiceit/backend/utils"
 	"github.com/gorilla/securecookie"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -155,7 +155,7 @@ func (app *App) setSession(username string, w http.ResponseWriter, r *http.Reque
 		http.SetCookie(w, cookie)
 	}
 
-	tokenval := crypto.GenerateRandomHash(20)
+	tokenval := utils.GenerateRandomHash(20)
 	encryptedtoken, err := bcrypt.GenerateFromPassword([]byte(tokenval), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println(err.Error())
