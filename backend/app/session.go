@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -31,6 +30,17 @@ func getIPFromRequest(req *http.Request) (string, error) {
 	return userIP.String(), nil
 }
 
+func getTokenFromRequest(r *http.Request) (token string) {
+	if cookie, err := r.Cookie("token"); err == nil {
+		cookieValue := make(map[string]string)
+		if err = cookieHandler.Decode("token", cookie.Value, &cookieValue); err == nil {
+			return cookieValue["token"]
+		}
+		return "none: cookieHandler.Decode token failed"
+	}
+	return "none: r.Cookie(token) failed"
+}
+
 func getUserName(r *http.Request) (userName string) {
 	if cookie, err := r.Cookie("username"); err == nil {
 		cookieValue := make(map[string]string)
@@ -41,71 +51,25 @@ func getUserName(r *http.Request) (userName string) {
 	return userName
 }
 
-func initializeFailedLogins(w http.ResponseWriter, r *http.Request) {
-	value := map[string]string{
-		"failedlogins": "1",
+func (app *App) setInitialSession(w http.ResponseWriter, r *http.Request) {
+	tokenval := utils.GenerateRandomHash(20)
+	_, _ = app.DB.Do("SADD", "tokens", tokenval)
+	value4 := map[string]string{
+		"token": tokenval,
 	}
-	failedlogins, err := cookieHandler.Encode("failedlogins", value)
+
+	token, err := cookieHandler.Encode("token", value4)
 	if err == nil {
 		cookie := &http.Cookie{
-			Name:  "failedlogins",
-			Value: failedlogins,
+			Name:  "token",
+			Value: token,
 			Path:  "/",
 		}
 		http.SetCookie(w, cookie)
 	}
 }
 
-func (app *App) checkIfIPBanned(r *http.Request) bool {
-	ip, err := getIPFromRequest(r)
-	if err != nil {
-		log.Println("Can't get IP from request in function checkIfIPBanned")
-		return true
-	}
-	ipbanned, _ := redis.Bool(app.DB.Do("SISMEMBER", "bannedips", ip))
-	if ipbanned {
-		return true
-	} else {
-		return false
-	}
-
-}
-
-func getFailedLogins(r *http.Request) int {
-	fails := 100
-	if cookie, err := r.Cookie("failedlogins"); err == nil {
-		cookieValue := make(map[string]string)
-		if err = cookieHandler.Decode("failedlogins", cookie.Value, &cookieValue); err == nil {
-			failsstring := cookieValue["failedlogins"]
-			fails, strconverr := strconv.Atoi(failsstring)
-			if strconverr != nil {
-				log.Println("couldn't convert failed attempt string value to integer")
-			}
-			return fails
-		}
-	}
-	return fails
-}
-
-func (app *App) incrementFailedLogin(w http.ResponseWriter, r *http.Request) {
-	fails := getFailedLogins(r) + 1
-	failsstring := strconv.Itoa(fails)
-
-	value := map[string]string{
-		"failedlogins": failsstring,
-	}
-	failedlogins, err := cookieHandler.Encode("failedlogins", value)
-	if err == nil {
-		cookie := &http.Cookie{
-			Name:  "failedlogins",
-			Value: failedlogins,
-			Path:  "/",
-		}
-		http.SetCookie(w, cookie)
-	}
-}
-
-func (app *App) setSession(username string, w http.ResponseWriter, r *http.Request) {
+func (app *App) setLoginSession(username string, w http.ResponseWriter, r *http.Request) {
 
 	value1 := map[string]string{
 		"username": username,
@@ -150,39 +114,6 @@ func (app *App) setSession(username string, w http.ResponseWriter, r *http.Reque
 		cookie := &http.Cookie{
 			Name:  "ipaddr",
 			Value: ipaddr,
-			Path:  "/",
-		}
-		http.SetCookie(w, cookie)
-	}
-
-	tokenval := utils.GenerateRandomHash(20)
-	encryptedtoken, err := bcrypt.GenerateFromPassword([]byte(tokenval), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	_, _ = app.DB.Do("HSET", "logins", username+":token", encryptedtoken)
-	value4 := map[string]string{
-		"token": tokenval,
-	}
-
-	token, err := cookieHandler.Encode("token", value4)
-	if err == nil {
-		cookie := &http.Cookie{
-			Name:  "token",
-			Value: token,
-			Path:  "/",
-		}
-		http.SetCookie(w, cookie)
-	}
-
-	value5 := map[string]string{
-		"failedlogins": "0",
-	}
-	failedlogins, err := cookieHandler.Encode("failedlogins", value5)
-	if err == nil {
-		cookie := &http.Cookie{
-			Name:  "failedlogins",
-			Value: failedlogins,
 			Path:  "/",
 		}
 		http.SetCookie(w, cookie)
@@ -254,14 +185,6 @@ func (app *App) authenticateLogin(username, password string, r *http.Request) bo
 }
 
 func (app *App) authenticateCookie(r *http.Request) (string, bool) {
-	ip, err := getIPFromRequest(r)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	isbanned, _ := redis.Bool(app.DB.Do("SISMEMBER", "bannedips", ip))
-	if isbanned {
-		return "", false
-	}
 
 	// Decode value of expiration from client cookie, check to see if the cookies expired
 	var expirationstring string
@@ -274,7 +197,8 @@ func (app *App) authenticateCookie(r *http.Request) (string, bool) {
 	} else {
 		return "", false
 	}
-	expiration, err = time.Parse(time.RFC3339, expirationstring)
+
+	expiration, err := time.Parse(time.RFC3339, expirationstring)
 	if err != nil {
 		log.Println("couldn't parse expiration")
 		return "", false
@@ -316,16 +240,15 @@ func (app *App) authenticateCookie(r *http.Request) (string, bool) {
 	}
 
 	// Get hashed token from database
-	tokenfromdb, _ := redis.String(app.DB.Do("HGET", "logins", username+":token"))
+	ismember, _ := redis.Bool(app.DB.Do("SISMEMBER", "tokens", tokenfromcookie))
 
 	// Use bcrypt.CompareHashAndPassword() method in order to compare the encrypted token hash received from the database with the token extracted from the users cookie
-	tokenerror := bcrypt.CompareHashAndPassword([]byte(tokenfromdb), []byte(tokenfromcookie))
 
 	// Massive if clause to make sure that everything about the cookie is just right
 	// 1) Since we extract the user's IP, we can compare that with the one stored in the DB to see if they match
 	// 2) The first thing this function checks is to see if the token expired or not (set to expire after 24 hours of nonusage)
 	// 3) The token must match that stored in the DB (since the token is generated randomly during the inital login, it fairly difficult to brute force it
-	if ipfromcookie == ipfromrequest && ipfromcookie != "" && tokenerror == nil && tokenfromdb != "" && tokenfromcookie != "" && username != "" {
+	if ipfromcookie == ipfromrequest && ipfromcookie != "" && ismember && tokenfromcookie != "" && username != "" {
 		return username, true
 	} else {
 		return "", false

@@ -33,8 +33,8 @@ type AddNewUserStruct struct {
 }
 
 func (app *App) Initialize() {
-	// db, err := redis.Dial("tcp", ":6379")
-	db, err := redis.DialURL(os.Getenv("REDISLOCATION"))
+	db, err := redis.Dial("tcp", ":6379")
+	// db, err := redis.DialURL(os.Getenv("REDISLOCATION"))
 	app.DB = db
 	if err != nil {
 		log.Println(err.Error())
