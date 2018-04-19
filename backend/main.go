@@ -16,26 +16,13 @@ func init() {
 	globals.Initialize()
 }
 func main() {
-	rootmux := mux.NewRouter()
 
-	// Works, but no cookie writing
-	// r.PathPrefix("/").Handler(http.FileServer(http.Dir(utils.Pwd() + "dist/")))
-
-	// r.PathPrefix("/").Handler(negroni.New(
-	// globals.Middleware,
-	// negroni.Wrap(r),
-	// ))
-
-	rootmux.HandleFunc("/", globals.Root)
-
+	r := mux.NewRouter()
+	r.HandleFunc("/login", globals.Login)
+	r.HandleFunc("/register", globals.Register)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../frontend/dist/")))
 	n := negroni.Classic()
-	// n.Use(negroni.NewStatic(http.Dir(utils.Pwd() + "/dist")))
-	n.Use(negroni.NewStatic(http.Dir("../frontend/dist")))
-	n.UseHandler(rootmux)
-
-	mux := mux.NewRouter()
-	mux.HandleFunc("/login", globals.Login)
-	n.UseHandler(mux)
+	n.UseHandler(r)
 
 	n.Run(":8080")
 }
