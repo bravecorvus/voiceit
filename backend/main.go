@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gilgameshskytrooper/voiceit/backend/app"
-	"github.com/gilgameshskytrooper/voiceit/backend/utils"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 )
@@ -21,8 +20,8 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/login", globals.Login)
 	r.HandleFunc("/register", globals.Register)
-	// r.PathPrefix("/").Handler(http.FileServer(http.Dir("../frontend/dist/")))
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(utils.Pwd() + "dist/")))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../frontend/dist/")))
+	// r.PathPrefix("/").Handler(http.FileServer(http.Dir(utils.Pwd() + "dist/")))
 	n := negroni.Classic()
 	n.UseHandler(r)
 

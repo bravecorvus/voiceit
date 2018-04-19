@@ -7,3 +7,4 @@ yarn-debug.log*
 yarn-error.log*
 docker-compose-actual.yaml
 data/*
+randomwords.txt
