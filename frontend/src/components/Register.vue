@@ -4,6 +4,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-record/2.1.3/css/videojs.record.min.css" rel="stylesheet">
 
     <h1>Register</h1>
+    <p v-if="showintro">Will record 3 sets of videos
+    (please say "My voice and my face identify me.").
+    Start talking when you the video pops up on the screen.
+    When you are ready, please enter the username you want to use and press submit.</p>
+    <p v-if="nextvideo">Recording next video in {{ this.nextvideocounter }}</p>
     <div style="align: center;" id="recorddiv">
       <p>Recording video for {{countdown}} seconds.</p>
       <video style="align: center !important;"
@@ -50,45 +55,112 @@ export default {
       username: '',
       countdown: 5,
       player: null,
+      showintro: true,
+      counter: 2,
+      fordata: null,
+      nextvideo: false,
+      nextvideocounter: 3,
     };
   },
   methods: {
     submit() {
-      $('#processing').css('display', '');
       $('#username').css('display', 'none');
-      const formData = new FormData();
-      if (is.firefox()) {
-        formData.append('file', this.player.recordedData, this.username);
-      } else if (is.chrome()) {
-        formData.append('file', this.player.recordedData.video, this.username);
-      } else {
-        formData.append('file', this.player.recordedData, this.username);
-      }
 
       function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
       }
 
-      axios.post(
-        '/register',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
+      $('#username').css('display', 'none');
+      $('#processing').css('display', 'none');
+      $('#recorddiv').css('display', 'none');
+
+      this.player = videojs('auth-video', {
+      // video.js options
+        controls: true,
+        plugins: {
+        // videojs-record plugin options
+          record: {
+            audio: true,
+            video: true,
+            maxLength: 5,
+          },
         },
-      ).then(() => {
-        $('#err').prepend('<p style="text-align: center;">Successfully created account. Please try logging in after we redirect you in a few seconds</p>');
-        sleep(3000).then(() => {
-          window.location.reload();
-        });
-        $('#processing').css('display', 'none');
-      })
-        .catch(() => {
-          $('#err').prepend('<p style="text-align: center;">Error creating account. Redirecting back to home page in a few seconds.</p>');
-          $('#processing').css('display', 'none');
-          sleep(3000).then(() => {
-            window.location.reload();
+      });
+
+      this.player.on('deviceError', () => {
+        console.log('device error:', this.player.deviceErrorCode);
+      });
+
+      this.player.on('error', (error) => {
+        console.log('error:', error);
+      });
+
+      this.player.on('finishRecord', () => {
+        if (this.counter < 4) {
+          $('#recorddiv').css('display', 'none');
+          if (is.firefox()) {
+            this.formdata.append(`file${this.counter}`, this.player.recordedData, this.username + this.counter);
+          } else if (is.chrome()) {
+            this.formdata.append(`file${this.counter}`, this.player.recordedData.video, this.username + this.counter);
+          } else {
+            this.formdata.append(`file${this.counter}`, this.player.recordedData, this.username + this.counter);
+          }
+          this.counter += 1;
+          this.nextvideo = true;
+          sleep(1000).then(() => {
+            this.nextvideocounter -= 1;
+            sleep(1000).then(() => {
+              this.nextvideocounter -= 1;
+              sleep(1000).then(() => {
+                this.nextvideocounter -= 1;
+                sleep(1000).then(() => {
+                  this.nextvideocounter = 3;
+                  this.nextvideo = false;
+                  this.player.record().reset();
+                  this.player.deviceButton.trigger('click');
+                  $('#recorddiv').css('display', '');
+                  $('.vjs-control-bar').css('display', 'none');
+                  $('.vjs-record-button').trigger('click');
+                });
+              });
+            });
           });
-        });
+        } else {
+          if (is.firefox()) {
+            this.formdata.append('file', this.player.recordedData, this.username);
+          } else if (is.chrome()) {
+            this.formdata.append('file', this.player.recordedData.video, this.username);
+          } else {
+            this.formdata.append('file', this.player.recordedData, this.username);
+          }
+          $('#recorddiv').css('display', 'none');
+          $('#processing').css('display', '');
+
+          axios.post(
+            '/register',
+            this.formdata,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            },
+          ).then(() => {
+            $('#err').prepend('<p style="text-align: center;">Successfully created account. Please try logging in after we redirect you in a few seconds</p>');
+            sleep(3000).then(() => {
+              window.location.reload();
+            });
+            $('#processing').css('display', 'none');
+          })
+            .catch(() => {
+              $('#err').prepend('<p style="text-align: center;">Error creating account. Redirecting back to home page in a few seconds.</p>');
+              $('#processing').css('display', 'none');
+              sleep(3000).then(() => {
+                window.location.reload();
+              });
+            });
+        }
+      });
+
+      this.permissions();
+      this.formdata = new FormData();
     },
 
     permissions() {
@@ -131,21 +203,24 @@ export default {
         return new Promise(resolve => setTimeout(resolve, time));
       }
 
-      sleep(100).then(() => {
+
+      sleep(3000).then(() => {
+        this.showintro = false;
         $('.vjs-record-button').trigger('click');
         $('.vjs-control-bar').css('display', 'none');
         $('#recorddiv').css('display', '');
-      });
-      sleep(3000).then(() => {
-        this.countdown -= 1;
-        sleep(1000).then(() => {
+        this.countdown = 5;
+        sleep(3000).then(() => {
           this.countdown -= 1;
           sleep(1000).then(() => {
             this.countdown -= 1;
             sleep(1000).then(() => {
               this.countdown -= 1;
               sleep(1000).then(() => {
-                this.recording = false;
+                this.countdown -= 1;
+                sleep(1000).then(() => {
+                  this.recording = false;
+                });
               });
             });
           });
@@ -155,38 +230,8 @@ export default {
   },
 
   mounted() {
-    $('#username').css('display', 'none');
-    $('#processing').css('display', 'none');
     $('#recorddiv').css('display', 'none');
-
-    this.player = videojs('auth-video', {
-      // video.js options
-      controls: true,
-      plugins: {
-        // videojs-record plugin options
-        record: {
-          audio: true,
-          video: true,
-          maxLength: 5,
-        },
-      },
-    });
-
-    this.player.on('deviceError', () => {
-      console.log('device error:', this.player.deviceErrorCode);
-    });
-
-    this.player.on('error', (error) => {
-      console.log('error:', error);
-    });
-
-    this.player.on('finishRecord', () => {
-      $('#username').css('display', '');
-      $('#recorddiv').css('display', 'none');
-    });
-
-
-    this.permissions();
+    $('#processing').css('display', 'none');
   },
 };
 </script>
