@@ -66,6 +66,6 @@ WantedBy=multi-user.target
 **Just change `WorkingDirectory` accordingly**
 
 ## Caveats
-I was having some amount of trouble getting video verification to work, so I took some liberties to fully showcase the application functionality even if video verification was not working for me at this time.
+In order to showcase the server side video processing capacity, I am not explicitly deleting any uploaded or converted videos. In a true production setting, this showcasing functionality will be turned off since after creating a new video enrollment or authenticating a user, videos are no longer necessary to store on disk and can be deleted to save space as they are only needed for the duration of the VoiceIt API call.
 
-Namely, order to showcase the server side video processing capacity, I am not explicitly deleting any uploaded or converted videos. In a true production setting, this showcasing functionality will be turned off since after creating a new video enrollment or authenticating a user, videos are no longer necessary to store on disk and can be deleted to save space as they are only needed for the duration of the VoiceIt API call.
+Furthermore, I am host mounting the files directory from the root so that processed videos can be viewed from the host operating system in that folder. In production, this folder does not need to be hostmounted since videos will only temporarily be stored, and deleted immediately after the API calls.
