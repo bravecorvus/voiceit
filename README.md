@@ -29,7 +29,7 @@ Then, just run the following command:
 ./run-dev
 ```
 
-**Note: I have noticed that running the above command in a system which defaults to the root user will not work since the Redis container needs to be owned by user:group `1001:1001` (due to their implementation of Linxu security). Hence, you will need to add the line `chown -R 1001:1001 redis` after the `mkdir` line in the above script for this scenario**
+**Note: I have noticed that running the above command in a system which defaults to the root user will not work since the Redis container needs to be owned by user:group `1001:1001` (due to their implementation of Linux security). Hence, you will need to add the line `chown -R 1001:1001 redis` after the `mkdir` line in the above script for this scenario**
 
 This programs bootstraps the directories we will be mounting on the host system as well as moving the files `docker-compose.yaml` and `docker-compose-actual.yaml` so that `actual` gets used during execution, but switches back places after the program is shut down via `CTRL-C`.
 
