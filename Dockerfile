@@ -21,9 +21,11 @@ COPY /backend ./backend
 RUN go get -d -v ./...
 RUN cd backend && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o voiceit .
 
+FROM jrottenberg/ffmpeg:3.3-scratch as ffmpeg-build-env
+
 FROM scratch
+COPY --from=ffmpeg-build-env / .
 COPY --from=frontend-build-env /usr/app/dist /dist
-COPY --from=backend-build-env /tmp /tmp
 COPY --from=backend-build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=backend-build-env /go/src/github.com/gilgameshskytrooper/voiceit/backend/voiceit /
 CMD ["./voiceit"]

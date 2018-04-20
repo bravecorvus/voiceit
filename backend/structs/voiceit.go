@@ -18,4 +18,5 @@ type CreateUserVideoEnrollmentResponse struct {
 
 type VideoVerificationResponse struct {
 	ResponseCode string `json:"responseCode"`
+	Message      string `json:"message"`
 }

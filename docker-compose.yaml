@@ -8,21 +8,19 @@ services:
     ports:
       - '6379'
     volumes:
-      - ./data:/bitnami
+      - ./redis:/bitnami
   voiceit:
     build: .
     restart: always
     links:
       - db
     environment:
-      - VOICEITEMAILUSERNAME=EMAIL
-      - VOICEITEMAILPASSWORD=PASSWORD
-      - VOICEITADMINEMAIL=ADMINEMAILADDRESS
-      - VOICEITURL=http://localhost:8080
-      - VOICEITADMINPASSWORD=PASSWORD
-      - VOICEITAPIKEY=key_11100011111
-      - VOICEITAPITOKEN=tok_11111010101001
+      - VOICEITAPIKEY=key_111111111111111111111111
+      - VOICEITAPITOKEN=tok_11111111111111111111111
       - REDISLOCATION=redis://db:6379
       - TMPDIR=/tmp
+      - FFMPEGCOMMAND=/bin/ffmpeg
     ports:
       - '8080:8080'
+    volumes:
+      - ./files:/files

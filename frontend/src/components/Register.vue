@@ -4,9 +4,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-record/2.1.3/css/videojs.record.min.css" rel="stylesheet">
 
     <h1>Register</h1>
-    <div id="recorddiv">
+    <div style="align: center;" id="recorddiv">
       <p>Recording video for {{countdown}} seconds.</p>
-      <video id="auth-video" class="video-js vjs-default-skin"></video>
+      <video style="align: center !important;"
+        id="auth-video" class="video-js vjs-default-skin"></video>
     </div>
 
     <div id="username">
@@ -28,6 +29,8 @@
       <p>Attempting to Register</p>
       <i style="font-size: 50px; color: black;" class="fa fa-spinner fa-spin" id="spinner"></i>
     </div>
+    <div id="err">
+    </div>
   </div>
 </template>
 
@@ -37,6 +40,7 @@ require('webrtc-adapter/out/adapter');
 const videojs = require('video.js');
 require('videojs-record');
 const is = require('is_js');
+const axios = require('axios');
 
 
 export default {
@@ -61,10 +65,30 @@ export default {
         formData.append('file', this.player.recordedData, this.username);
       }
 
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/register');
-      xhr.send(formData);
-      this.player.record().destroy();
+      function sleep(time) {
+        return new Promise(resolve => setTimeout(resolve, time));
+      }
+
+      axios.post(
+        '/register',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
+      ).then(() => {
+        $('#err').prepend('<p style="text-align: center;">Successfully created account. Please try logging in after we redirect you in a few seconds</p>');
+        sleep(3000).then(() => {
+          window.location.reload();
+        });
+        $('#processing').css('display', 'none');
+      })
+        .catch(() => {
+          $('#err').prepend('<p style="text-align: center;">Error creating account. Redirecting back to home page in a few seconds.</p>');
+          $('#processing').css('display', 'none');
+          sleep(3000).then(() => {
+            window.location.reload();
+          });
+        });
     },
 
     permissions() {
@@ -106,12 +130,14 @@ export default {
       function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
       }
-      sleep(1000).then(() => {
+
+      sleep(100).then(() => {
+        $('.vjs-record-button').trigger('click');
         $('.vjs-control-bar').css('display', 'none');
-        sleep(2000).then(() => {
-          $('.vjs-record-button').trigger('click');
-          $('.vjs-control-bar').css('display', 'none');
-        });
+        $('#recorddiv').css('display', '');
+      });
+      sleep(3000).then(() => {
+        this.countdown -= 1;
         sleep(1000).then(() => {
           this.countdown -= 1;
           sleep(1000).then(() => {
@@ -119,10 +145,7 @@ export default {
             sleep(1000).then(() => {
               this.countdown -= 1;
               sleep(1000).then(() => {
-                this.countdown -= 1;
-                sleep(1000).then(() => {
-                  this.recording = false;
-                });
+                this.recording = false;
               });
             });
           });
@@ -134,15 +157,7 @@ export default {
   mounted() {
     $('#username').css('display', 'none');
     $('#processing').css('display', 'none');
-
-    let videomime = '';
-    if (is.firefox()) {
-      videomime = 'video/mp4;codecs=H264';
-    } else if (is.chrome()) {
-      videomime = 'video/webm;codecs=H264';
-    } else {
-      videomime = 'video/webm';
-    }
+    $('#recorddiv').css('display', 'none');
 
     this.player = videojs('auth-video', {
       // video.js options
@@ -153,7 +168,6 @@ export default {
           audio: true,
           video: true,
           maxLength: 5,
-          videoMimeType: videomime,
         },
       },
     });
