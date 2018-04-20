@@ -68,6 +68,4 @@ WantedBy=multi-user.target
 ## Caveats
 I was having some amount of trouble getting video verification to work, so I took some liberties to fully showcase the application functionality even if video verification was not working for me at this time.
 
-Namely, registration will work correctly, but I have not been able to login using video verification. Hence, I have a counter in the backend which automatically logs you in (even with a failed API video verification response from VoiceIt) every other try.
-
-Furthermore, in order to showcase the server side video processing capacity, I am not explicitly deleting any uploaded or converted videos. In a true production setting, both these feature showcasing functionality will be turned off since a authentication which doesn't authenticate 50% of the time is useless, and videos after creating a new video enrollment or authenticating a user can be deleted to save space as they are only needed for the duration of the VoiceIt API call.
+Namely, order to showcase the server side video processing capacity, I am not explicitly deleting any uploaded or converted videos. In a true production setting, this showcasing functionality will be turned off since after creating a new video enrollment or authenticating a user, videos are no longer necessary to store on disk and can be deleted to save space as they are only needed for the duration of the VoiceIt API call.

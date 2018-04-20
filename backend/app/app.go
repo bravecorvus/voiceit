@@ -9,10 +9,9 @@ import (
 )
 
 type App struct {
-	DB                redis.Conn
-	VoiceIt           voiceit2go.VoiceIt2
-	CookieHandler     *securecookie.SecureCookie
-	ForceSucceedLogin bool
+	DB            redis.Conn
+	VoiceIt       voiceit2go.VoiceIt2
+	CookieHandler *securecookie.SecureCookie
 }
 
 func (app *App) Initialize() {

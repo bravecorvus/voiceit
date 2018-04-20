@@ -69,18 +69,15 @@ func (app *App) Login(w http.ResponseWriter, r *http.Request) {
 	response := structs.VideoVerificationResponse{}
 	userid, _ := redis.String(app.DB.Do("HGET", "logins", username+":userid"))
 	json.Unmarshal(app.VoiceIt.VideoVerification(userid, "en-US", utils.Pwd()+"files/"+username+".mp4").Bytes(), &response)
-	if response.ResponseCode != "SUCC" && !app.ForceSucceedLogin { // Verification failed. Return user to root
+	if response.ResponseCode != "SUCC" && { // Verification failed. Return user to root
 		w.WriteHeader(403)
 		log.Println("Failed to log in")
 		log.Println("mesage:", response.Message)
 		log.Println("ResponseCode:", response.ResponseCode)
-		app.ForceSucceedLogin = true
 		// os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		return
 	}
 
-	log.Println("app.ForceSucceedLogin set to true (to show what an authenticated user would see)")
-	app.ForceSucceedLogin = false
 	out.Close()
 	app.setSession(username, w)
 	json.NewEncoder(w).Encode(structs.LoginSuccessStruct{Secret: "Ever notice Jennifer from Back to the Future changed actresses between I and II? Claudia Wells, the first Jennifer, was unable to reprise the role due to her mother becoming ill. The studio recast Elisabeth Shue for Back to the Future II and III and reshot the final footage of BTTF with Shue instead of Wells for BTTF 2’s opening."})
