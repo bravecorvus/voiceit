@@ -30,7 +30,9 @@ Then, just run the following command:
 ```
 
 This programs bootstraps the directories we will be mounting on the host system as well as moving the files `docker-compose.yaml` and `docker-compose-actual.yaml` so that `actual` gets used during execution, but switches back places after the program is shut down via `CTRL-C`.
-**Please make sure you run this program AT LEAST ONCE even if you already understand how to use `docker-compose` since the directories are necessary to run Redis and the web server**
+**Please make sure you run this program AT LEAST ONCE even if you already understand how to use `docker-compose` since the directories are necessary to run Redis and the web server.**
+
+![run-dev](https://78.media.tumblr.com/6c7037e4dd74023d34213aac24002ac3/tumblr_p7h7ljqUCv1s5a4bko1_1280.png)
 
 Once you run the above program at least once, and you are sure you will no longer be updating the git remote repo (you no longer need to worry about uploading your API key and value to Github), you can replace the original `docker-compose.yaml` with `docker-compose-actual.yaml`, and run the container headlessly via the command `docker-compose up -d`.
 
