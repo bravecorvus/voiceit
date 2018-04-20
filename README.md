@@ -29,7 +29,10 @@ Then, just run the following command:
 ./run-dev
 ```
 
+**Note: I have noticed that running the above command in a system which defaults to the root user will not work since the Redis container needs to be owned by user:group `1001:1001` (due to their implementation of Linxu security). Hence, you will need to add the line `chown -R 1001:1001 redis` after the `mkdir` line in the above script for this scenario**
+
 This programs bootstraps the directories we will be mounting on the host system as well as moving the files `docker-compose.yaml` and `docker-compose-actual.yaml` so that `actual` gets used during execution, but switches back places after the program is shut down via `CTRL-C`.
+
 **Please make sure you run this program AT LEAST ONCE even if you already understand how to use `docker-compose` since the directories are necessary to run Redis and the web server.**
 
 ![run-dev](https://78.media.tumblr.com/6c7037e4dd74023d34213aac24002ac3/tumblr_p7h7ljqUCv1s5a4bko1_1280.png)
@@ -65,6 +68,6 @@ WantedBy=multi-user.target
 ## Caveats
 I was having some amount of trouble getting video verification to work, so I took some liberties to fully showcase the application functionality even if video verification was not working for me at this time.
 
-Namely, registration will work correctly, but I have not been able to login using video verification. Hence, I have a counter in the backend which automatically logs you in (even with a failed API video verification response from VoiceIt) every 2 tries.
+Namely, registration will work correctly, but I have not been able to login using video verification. Hence, I have a counter in the backend which automatically logs you in (even with a failed API video verification response from VoiceIt) every other try.
 
 Furthermore, in order to showcase the server side video processing capacity, I am not explicitly deleting any uploaded or converted videos. In a true production setting, both these feature showcasing functionality will be turned off since a authentication which doesn't authenticate 50% of the time is useless, and videos after creating a new video enrollment or authenticating a user can be deleted to save space as they are only needed for the duration of the VoiceIt API call.
