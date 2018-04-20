@@ -34,7 +34,31 @@ This programs bootstraps the directories we will be mounting on the host system 
 
 Once you run the above program at least once, and you are sure you will no longer be updating the git remote repo (you no longer need to worry about uploading your API key and value to Github), you can replace the original `docker-compose.yaml` with `docker-compose-actual.yaml`, and run the container headlessly via the command `docker-compose up -d`.
 
-Furthermore, this will allow you to define systemd scripts to ensure `docker-compose up` is run after every restart.
+Furthermore, this will allow you to define scripts to ensure `docker-compose up` is run after every restart.
+
+Heres an example of how you could accomplish that in `systemd`:
+File: `/etc/systemd/system/voiceit.service`
+```
+[Unit]
+Description=VoiceIt docker-compose container starter
+After=docker.service network-online.target
+Requires=docker.service network-online.target
+
+[Service]
+WorkingDirectory=/root/go/src/github.com/gilgameshskytrooper/voiceit
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/usr/bin/docker-compose up -d
+
+ExecStop=/usr/local/bin/docker-compose down
+
+ExecReload=/usr/bin/docker-compose up -d
+
+[Install]
+WantedBy=multi-user.target
+```
+**Just change `WorkingDirectory` accordingly**
 
 ## Caveats
 I was having some amount of trouble getting video verification to work, so I took some liberties to fully showcase the application functionality even if video verification was not working for me at this time.
