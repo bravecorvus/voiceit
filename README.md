@@ -5,7 +5,7 @@
 
 This web application allows for user registration (using video enrollment) as well as user authentication (via video verification).
 
-I am utilizing [Vue.js](http://vuejs.org/) as a basis for the frontend (as well as heavy use of the [videojs-record](https://github.com/collab-project/videojs-record) project to capture video and audio from users in the client side and sending the resulting blob to the server). The backend is written in Go, and I am using [Redis](https://redis.io/) to store persistent data.
+I am utilizing [Vue.js](http://vuejs.org/) as a basis for the frontend (as well as heavy use of the [videojs-record](https://github.com/collab-project/videojs-record) project to capture video and audio from users in the client side and sending the resulting blob to the server). The backend is written in [Go](https://golang.org/), and I am using [Redis](https://redis.io/) to store persistent data.
 
 ## Build Instructions
 In order to minimize the system dependencies, I have used [docker-compose](https://docs.docker.com/compose/) to build the frontend and backend, and run that plus the Redis database all in one command. Because of this, the only system dependencies to run this program is `docker version > 18.0.3.0-ce` and `docker-compose version > 1.20.1`.
