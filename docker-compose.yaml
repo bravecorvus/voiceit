@@ -19,7 +19,6 @@ services:
       - VOICEITAPITOKEN=tok_11111111111111111111111
       - REDISLOCATION=redis://db:6379
       - TMPDIR=/tmp
-      - FFMPEGCOMMAND=/bin/ffmpeg
     ports:
       - '8080:8080'
     volumes:

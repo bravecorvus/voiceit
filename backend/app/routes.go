@@ -10,7 +10,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/gilgameshskytrooper/voiceit/backend/structs"
 	"github.com/gilgameshskytrooper/voiceit/backend/utils"
-	"github.com/gilgameshskytrooper/voiceit/backend/video"
 	"github.com/gorilla/mux"
 )
 
@@ -57,8 +56,8 @@ func (app *App) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out.Close()
-	video.ConvertToH264MP4(utils.Pwd()+"files/", username)
+	// out.Close()
+	// video.ConvertToH264MP4(utils.Pwd()+"files/", username)
 	out, err = os.Open(utils.Pwd() + "files/" + username + ".mp4")
 	if err != nil {
 		log.Println("Failed to open converted .mp4 file")
@@ -115,8 +114,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 		log.Println("Failed to io.Copy")
 		return
 	}
-	out.Close()
-	video.ConvertToH264MP4(utils.Pwd()+"files/", username)
+	// out.Close()
+	// video.ConvertToH264MP4(utils.Pwd()+"files/", username)
 	out, err = os.Open(utils.Pwd() + "files/" + username + ".mp4")
 	if err != nil {
 		log.Println("Failed to open converted .mp4 file")
