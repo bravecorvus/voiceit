@@ -1,7 +1,7 @@
 <template>
   <div id="register">
-    <link href="../assets/video-js.min" rel="stylesheet">
-    <link href="../assets/videojs.record.min" rel="stylesheet">
+    <link href="../assets/video-js.min.css" rel="stylesheet">
+    <link href="../assets/videojs.record.min.css" rel="stylesheet">
 
     <h1>Register</h1>
     <p v-if="showintro">Will record 3 sets of videos

@@ -19,7 +19,7 @@ func (app *App) Secret(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
 	if app.authenticateBrowserToken(username, r) {
-		template, err := ace.Load("templates/secret", "", nil)
+		template, err := ace.Load(utils.Pwd()+"templates/secret", "", nil)
 		if err != nil {
 			http.Error(w, "Failed to load template", http.StatusInternalServerError)
 			return

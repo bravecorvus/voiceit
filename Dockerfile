@@ -13,6 +13,9 @@ COPY /frontend/src ./src
 COPY /frontend/static ./static
 RUN yarn install
 RUN npm run build
+RUN mkdir dist/assets
+RUN wget -O /usr/app/dist/assets/video-js.min.css http://vjs.zencdn.net/6.6.3/video-js.min.css
+RUN wget -O /usr/app/dist/assets/videojs.record.min.css https://cdnjs.cloudflare.com/ajax/libs/videojs-record/2.1.3/css/videojs.record.min.css
 
 FROM golang:1.10-alpine as backend-build-env
 WORKDIR /go/src/github.com/gilgameshskytrooper/voiceit/

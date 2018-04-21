@@ -1,7 +1,7 @@
 <template>
   <div id="login">
-    <link href="../assets/video-js.min" rel="stylesheet">
-    <link href="../assets/videojs.record.min" rel="stylesheet">
+    <link href="../assets/video-js.min.css" rel="stylesheet">
+    <link href="../assets/videojs.record.min.css" rel="stylesheet">
 
     <h1 id="h1">Login</h1>
     <div style="align: center;" id="recorddiv">
