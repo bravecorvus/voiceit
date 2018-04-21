@@ -1,21 +1,15 @@
 package app
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/gilgameshskytrooper/bigdisk/crypto"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *App) setSession(username string, w http.ResponseWriter) {
 	tokenval := crypto.GenerateRandomHash(20)
-	encryptedtoken, err := bcrypt.GenerateFromPassword([]byte(tokenval), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	app.DB.Do("HSET", "logins", username+":clienttoken", encryptedtoken)
+	app.DB.Do("HSET", "logins", username+":token", tokenval)
 	value := map[string]string{
 		"token": tokenval,
 	}
@@ -42,12 +36,8 @@ func (app *App) authenticateBrowserToken(username string, r *http.Request) bool 
 		return false
 	}
 	tokenfromdb, _ := redis.String(app.DB.Do("HGET", "logins", username+":token"))
-
-	// Use bcrypt.CompareHashAndPassword() method in order to compare the encrypted token hash received from the database with the token extracted from the users cookie
-	tokenerror := bcrypt.CompareHashAndPassword([]byte(tokenfromdb), []byte(tokenfromcookie))
-	if tokenerror == nil {
-		return true
-	} else {
+	if tokenfromcookie != tokenfromdb && tokenfromcookie != "" && tokenfromdb != "" {
 		return false
 	}
+	return true
 }

@@ -1,5 +1,6 @@
 #!/bin/bash
 mkdir -p redis/redis/data
+mkdir backend/files
 mv docker-compose.yaml docker-compose-original.yaml
 mv docker-compose-actual.yaml docker-compose.yaml
 docker-compose build && docker-compose up

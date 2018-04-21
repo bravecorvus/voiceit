@@ -5,12 +5,12 @@
 
     <h1>Register</h1>
     <p v-if="showintro">Will record 3 sets of videos
-    (please say "My voice and my face identify me.").
+    (please say "My face and my voice identify me.").
     Start talking when you the video pops up on the screen.
     When you are ready, please enter the username you want to use and press submit.</p>
     <p v-if="nextvideo">Recording next video in {{ this.nextvideocounter }}</p>
     <div style="align: center;" id="recorddiv">
-      <p>Recording video for {{countdown}} seconds.</p>
+      <p v-if="showcountdown">Recording video for {{countdown}} seconds.</p>
       <video style="align: center !important;"
         id="auth-video" class="video-js vjs-default-skin"></video>
     </div>
@@ -54,6 +54,7 @@ export default {
     return {
       username: '',
       countdown: 5,
+      showcountdown: false,
       player: null,
       showintro: true,
       counter: 2,
@@ -74,6 +75,7 @@ export default {
       $('#processing').css('display', 'none');
       $('#recorddiv').css('display', 'none');
 
+
       this.player = videojs('auth-video', {
       // video.js options
         controls: true,
@@ -83,6 +85,7 @@ export default {
             audio: true,
             video: true,
             maxLength: 5,
+            videoMimeType: 'video/mp4;codecs=H264',
           },
         },
       });
@@ -107,6 +110,7 @@ export default {
           }
           this.counter += 1;
           this.nextvideo = true;
+
           sleep(1000).then(() => {
             this.nextvideocounter -= 1;
             sleep(1000).then(() => {
@@ -118,9 +122,25 @@ export default {
                   this.nextvideo = false;
                   this.player.record().reset();
                   this.player.deviceButton.trigger('click');
+                  this.countdown = 5;
                   $('#recorddiv').css('display', '');
                   $('.vjs-control-bar').css('display', 'none');
                   $('.vjs-record-button').trigger('click');
+                  this.countdown -= 1;
+                  this.showcountdown = true;
+                  sleep(1000).then(() => {
+                    this.countdown -= 1;
+                    sleep(1000).then(() => {
+                      this.countdown -= 1;
+                      sleep(1000).then(() => {
+                        this.countdown -= 1;
+                        sleep(1000).then(() => {
+                          this.recording = false;
+                          this.showcountdown = true;
+                        });
+                      });
+                    });
+                  });
                 });
               });
             });
@@ -148,6 +168,7 @@ export default {
               window.location.reload();
             });
             $('#processing').css('display', 'none');
+            this.player.record().destroy();
           })
             .catch(() => {
               $('#err').prepend('<p style="text-align: center;">Error creating account. Redirecting back to home page in a few seconds.</p>');
@@ -206,11 +227,12 @@ export default {
 
       sleep(3000).then(() => {
         this.showintro = false;
+        this.showcountdown = false;
         $('.vjs-record-button').trigger('click');
         $('.vjs-control-bar').css('display', 'none');
         $('#recorddiv').css('display', '');
-        this.countdown = 5;
-        sleep(3000).then(() => {
+        sleep(1000).then(() => {
+          this.showcountdown = true;
           this.countdown -= 1;
           sleep(1000).then(() => {
             this.countdown -= 1;
@@ -220,6 +242,7 @@ export default {
                 this.countdown -= 1;
                 sleep(1000).then(() => {
                   this.recording = false;
+                  this.showcountdown = false;
                 });
               });
             });

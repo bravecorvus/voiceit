@@ -30,5 +30,4 @@ func (app *App) Initialize() {
 		securecookie.GenerateRandomKey(64),
 		securecookie.GenerateRandomKey(32))
 
-	app.ForceSucceedLogin = false
 }

@@ -5,7 +5,7 @@
 
     <h1 id="h1">Login</h1>
     <div style="align: center;" id="recorddiv">
-      <p>Recording video for {{countdown}} seconds.</p>
+      <p v-if="showvideocountdown">Recording video for {{countdown}} seconds.</p>
       <video style="align: center !important;"
         id="auth-video" class="video-js vjs-default-skin"></video>
     </div>
@@ -50,6 +50,7 @@ export default {
       username: '',
       countdown: 5,
       player: null,
+      showvideocountdown: false,
     };
   },
   methods: {
@@ -78,12 +79,10 @@ export default {
       ).then(() => {
         $('#h1').css('display', 'none');
         $('#processing').css('display', 'none');
-        $('#err').prepend('<p>Congratulations, you unlocked the secret</p><br />');
-        $.getJSON(`/secret/${this.username}`)
-          .done((data) => {
-            console.log('data', data);
-            $('#err').prepend(`<p>${data.secret}</p><br />`);
-          });
+        $('#err').prepend('Login successful. redirecting to secrets page in a few seconds');
+        sleep(3000).then(() => {
+          window.location.replace(`/secret/${this.username}`);
+        });
       })
         .catch(() => {
           $('#err').prepend('<p style="text-align: center;">Failed to log in. Please try again after we redirect you back to home page in a few seconds.</p>');
@@ -139,7 +138,8 @@ export default {
         $('.vjs-control-bar').css('display', 'none');
         $('#recorddiv').css('display', '');
       });
-      sleep(3000).then(() => {
+      this.showvideocountdown = true;
+      sleep(1000).then(() => {
         this.countdown -= 1;
         sleep(1000).then(() => {
           this.countdown -= 1;
@@ -171,6 +171,7 @@ export default {
           audio: true,
           video: true,
           maxLength: 5,
+          videoMimeType: 'video/mp4;codecs=H264',
         },
       },
     });

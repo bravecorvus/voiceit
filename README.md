@@ -10,9 +10,9 @@ I am utilizing [Vue.js](http://vuejs.org/) as a basis for the frontend (as well 
 ## Build Instructions
 In order to minimize the system dependencies, I have used [docker-compose](https://docs.docker.com/compose/) to build the frontend and backend, and run that plus the Redis database all in one command. Because of this, the only system dependencies to run this program is `docker version > 18.0.3.0-ce` and `docker-compose version > 1.20.1`.
 
-I am using a new technique called "statically compiled builds", which defines multiple build steps in a single Dockerfile to compile (in the case of my Go backend server), or produce pure client side code (in the case of the Vue frontend), and copy those assets into a [Docker Scratch](https://hub.docker.com/_/scratch/) image (which is described by Docker as an explicitly empty image). This is possible because the resulting code has no system dependencies, and can be run directly in an empty environment (a testament to the power of Go). Furthermore, the resulting image would have been about `14MB`. However, due to the limitations of native browser support for encoding video (Chrome only exporting Matroska H264 and Firefox exporting WebM videos), I also had to include a statically compiled executable of the [ffmpeg](https://hub.docker.com/r/jrottenberg/ffmpeg/) program in order process the video and encode it into full H264/MPEG-4 AVC format on the web server (which is required by the VoiceIt API. This increases the total size to be `63.5MB`.
+I am using a new technique called "statically compiled builds", which defines multiple build steps in a single Dockerfile to compile (in the case of my Go backend server), or produce pure client side code (in the case of the Vue frontend), and copy those assets into a [Docker Scratch](https://hub.docker.com/_/scratch/) image (which is described by Docker as an explicitly empty image). This is possible because the resulting code has no system dependencies, and can be run directly in an empty environment (a testament to the power of Go). Furthermore, the resulting image is about `14MB`.
 
-![dockerimages](https://78.media.tumblr.com/62023c3577c61cd20fa1e82b3be2ebf6/tumblr_p7h5ne4MwC1s5a4bko1_1280.png)
+![dockerimages](https://78.media.tumblr.com/aa6cecbca51f53414a89e52e48c09ed5/tumblr_p7ig9lAXv31s5a4bko1_1280.png)
 
 The only thing that needs to be done in order to run the program is to first copy the file `docker-compose.yaml` to be `docker-compose-actual.yaml`. This is done so that you can store the actual secret in the environment variables specified in `docker-compose-actual.yaml` without worrying about exposing secrets such as VoiceIt API key and value since it is added to `.gitignore`.
 
@@ -64,8 +64,3 @@ ExecReload=/usr/bin/docker-compose up -d
 WantedBy=multi-user.target
 ```
 **Just change `WorkingDirectory` accordingly**
-
-## Caveats
-In order to showcase the server side video processing capacity, I am not explicitly deleting any uploaded or converted videos. In a true production setting, this showcasing functionality will be turned off since after creating a new video enrollment or authenticating a user, videos are no longer necessary to store on disk and can be deleted to save space as they are only needed for the duration of the VoiceIt API call.
-
-Furthermore, I am host mounting the files directory from the root so that processed videos can be viewed from the host operating system in that folder. In production, this folder does not need to be hostmounted since videos will only temporarily be stored, and deleted immediately after the API calls.

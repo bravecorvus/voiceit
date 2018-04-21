@@ -23,8 +23,10 @@ func main() {
 	r.HandleFunc("/login", globals.Login)
 	r.HandleFunc("/register", globals.Register)
 	r.HandleFunc("/secret/{username}", globals.Secret)
-	// r.PathPrefix("/").Handler(http.FileServer(http.Dir("../frontend/dist/")))
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(utils.Pwd() + "dist/")))
+	// r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontend/dist/index.html") })
+	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontend/dist/static/"))))
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, utils.Pwd()+"dist/index.html") })
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("dist/static/"))))
 	n := negroni.Classic()
 	n.UseHandler(r)
 
