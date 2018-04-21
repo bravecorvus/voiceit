@@ -7,10 +7,12 @@ This web application allows for user registration (using video enrollment) as we
 
 I am utilizing [Vue.js](http://vuejs.org/) as a basis for the frontend (as well as heavy use of the [videojs-record](https://github.com/collab-project/videojs-record) project to capture video and audio from users in the client side and sending the resulting blob to the server). The backend is written in [Go](https://golang.org/), and I am using [Redis](https://redis.io/) to store persistent data.
 
+A fully functional version of the website is running at [voiceit.gilgameshskytrooper.io](voiceit.gilgameshskytrooper.io).
+
 ## Build Instructions
 In order to minimize the system dependencies, I have used [docker-compose](https://docs.docker.com/compose/) to build the frontend and backend, and run that plus the Redis database all in one command. Because of this, the only system dependencies to run this program is `docker version > 18.0.3.0-ce` and `docker-compose version > 1.20.1`.
 
-I am using a new technique called "statically compiled builds", which defines multiple build steps in a single Dockerfile to compile (in the case of my Go backend server), or produce pure client side code (in the case of the Vue frontend), and copy those assets into a [Docker Scratch](https://hub.docker.com/_/scratch/) image (which is described by Docker as an explicitly empty image). This is possible because the resulting code has no system dependencies, and can be run directly in an empty environment (a testament to the power of Go). Furthermore, the resulting image is about `14MB`.
+I am using a new technique called "statically compiled builds", which defines multiple build steps in a single Dockerfile to compile (in the case of my Go backend server), or produce pure client side code (in the case of the Vue frontend), and copy those assets into a [Docker Scratch](https://hub.docker.com/_/scratch/) image (which is described by Docker as an explicitly empty image). This is possible because the resulting code has no system dependencies, and can be run directly in an empty environment (a testament to the power of Go). Furthermore, the resulting image is only about `14MB`.
 
 ![dockerimages](https://78.media.tumblr.com/66e7738cceb6271d477f3e3e95d11036/tumblr_p7igr7BZLc1s5a4bko1_1280.png)
 
