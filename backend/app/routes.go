@@ -154,6 +154,7 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(app.VoiceIt.CreateUser().Bytes(), &create_user_response)
 
 	if create_user_response.ResponseCode != "SUCC" {
+		app.DB.Do("SREM", "users", username)
 		out.Close()
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println("Create user caused failure\n" + create_user_response.Message)
@@ -175,6 +176,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 
 	// Process first enrollment
 	if create_user_video_enrollment_response.ResponseCode != "SUCC" {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		out.Close()
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println(create_user_video_enrollment_response.Message)
@@ -188,6 +191,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 	// Process second enrollment
 	file2, header, err := r.FormFile("file2")
 	if err != nil {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		log.Println(err.Error())
 		w.WriteHeader(403)
 		return
@@ -196,6 +201,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 
 	out2, err3 := os.Create(utils.Pwd() + "files/" + username + "2.mp4")
 	if err3 != nil {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println("Failed to create file " + username + "2.mp4")
 		w.WriteHeader(403)
@@ -204,6 +211,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 
 	_, err5 := io.Copy(out2, file2)
 	if err5 != nil {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		out.Close()
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println("Failed to io.Copy enrollment 2")
@@ -221,6 +230,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 		&create_user_video_enrollment_response2)
 
 	if create_user_video_enrollment_response2.ResponseCode != "SUCC" {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		out.Close()
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println(create_user_video_enrollment_response2.Message)
@@ -234,6 +245,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 	// Process third enrollment
 	file3, header, err := r.FormFile("file3")
 	if err != nil {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		log.Println(err.Error())
 		w.WriteHeader(403)
 		return
@@ -243,6 +256,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 	// Check is username is saved in the database
 	out3, err4 := os.Create(utils.Pwd() + "files/" + username + "3.mp4")
 	if err4 != nil {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println("Failed to create file " + username + "3.mp4")
 		w.WriteHeader(403)
@@ -251,6 +266,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 
 	_, err6 := io.Copy(out3, file3)
 	if err6 != nil {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		out.Close()
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		w.WriteHeader(403)
@@ -268,6 +285,8 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 		&create_user_video_enrollment_response3)
 
 	if create_user_video_enrollment_response3.ResponseCode != "SUCC" {
+		app.DB.Do("SREM", "users", username)
+		app.DB.Do("HDEL", "logins", username+":userid")
 		out.Close()
 		os.Remove(utils.Pwd() + "files/" + username + ".mp4")
 		log.Println(create_user_video_enrollment_response3.Message)
