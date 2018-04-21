@@ -1,7 +1,7 @@
 <template>
   <div id="login">
-    <link href="http://vjs.zencdn.net/6.6.3/video-js.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-record/2.1.3/css/videojs.record.min.css" rel="stylesheet">
+    <link href="../assets/video-js.min" rel="stylesheet">
+    <link href="../assets/videojs.record.min" rel="stylesheet">
 
     <h1 id="h1">Login</h1>
     <div style="align: center;" id="recorddiv">
@@ -197,9 +197,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="sass" scoped>
-#login
-  text-align: center
-h1
-  font-size: 30px
-  text-align: center
+  #login
+    text-align: center
+  h1
+    font-size: 30px
+    text-align: center
 </style>
