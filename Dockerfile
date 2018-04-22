@@ -29,4 +29,5 @@ COPY --from=frontend-build-env /tmp /tmp
 COPY --from=frontend-build-env /usr/app/dist /dist
 COPY --from=backend-build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=backend-build-env /go/src/github.com/gilgameshskytrooper/voiceit/backend/voiceit /
+COPY --from=backend-build-env /go/src/github.com/gilgameshskytrooper/voiceit/backend/templates /templates
 CMD ["./voiceit"]

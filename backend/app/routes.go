@@ -21,12 +21,12 @@ func (app *App) Secret(w http.ResponseWriter, r *http.Request) {
 	if app.authenticateBrowserToken(username, r) {
 		template, err := ace.Load(utils.Pwd()+"templates/secret", "", nil)
 		if err != nil {
-			http.Error(w, "Failed to load template", http.StatusInternalServerError)
+			http.Error(w, "Failed to load template\n"+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if err = template.Execute(w, nil); err != nil {
-			http.Error(w, "Failed to execute template", http.StatusInternalServerError)
+			http.Error(w, "Failed to execute template\n"+err.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else {
